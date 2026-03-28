@@ -1,102 +1,204 @@
 # 🧩 Active Directory & Windows Server Labs
 
+> Simulating a **real-world small business IT infrastructure** — from Domain Controller setup to Group Policy enforcement and client domain joining.
+
+<div align="center">
+
+![Status](https://img.shields.io/badge/Status-In%20Progress-yellow?style=flat-square)
+![Platform](https://img.shields.io/badge/Platform-Windows%20Server%202025-blue?style=flat-square&logo=windows)
+![Virtualization](https://img.shields.io/badge/VMware-Workstation%20Pro-607078?style=flat-square&logo=vmware)
+![Host](https://img.shields.io/badge/Host-Ubuntu-E95420?style=flat-square&logo=ubuntu)
+
+</div>
+
+---
+
 ## 📌 Overview
-This repository documents my hands-on labs for deploying and managing a **Windows Server Active Directory (AD) environment**.
 
-The goal of this project is to simulate a **real-world small business IT infrastructure**, where an IT administrator is responsible for:
-
-- Setting up a Domain Controller  
-- Managing users and Organizational Units (OUs)  
-- Configuring Group Policies  
-- Joining client machines to a domain  
-- Performing troubleshooting and system administration tasks  
-
+This repository documents hands-on labs for deploying and managing a **Windows Server Active Directory (AD) environment**, where an IT administrator is responsible for domain setup, user management, Group Policy configuration, client onboarding, and system troubleshooting.
 
 ---
 
-## 🎯 Project Objectives
-- Build a fully functional **Active Directory environment**
-- Understand **domain-based network architecture**
-- Practice **user and access management**
-- Implement **security policies using Group Policy**
-- Gain real-world **IT Support / System Admin experience**
+## 🎯 Objectives & 🛠️ Technologies
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**Objectives**
+
+- 🏗️ Build a fully functional **Active Directory environment**
+- 🌐 Understand **domain-based network architecture**
+- 👥 Practice **user and access management**
+- 🔒 Implement **security policies via Group Policy**
+- 🧰 Gain real-world **IT Support / SysAdmin experience**
+
+</td>
+<td width="50%" valign="top">
+
+**Technologies**
+
+- 🪟 Windows Server 2025
+- 💻 Windows 10 (Client Machine)
+- 🗂️ Active Directory Domain Services (AD DS)
+- 📋 Group Policy Management
+- ⚙️ VMware Workstation Pro
+- 🐧 Ubuntu (Host Machine)
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🛠️ Technologies Used
-- Windows Server 2025
-- Windows 10 (Client Machine)
-- Active Directory Domain Services (AD DS)
-- Group Policy Management
-- VMware Workstation Pro
-- Ubuntu (Host Machine)
+## 🧪 Lab Structure
+
+| #   | Lab                                        | Status       |
+| --- | ------------------------------------------ | ------------ |
+| 1   | Windows Server Installation                | ✅ Completed |
+| 2   | Active Directory Domain Controller Setup   | ✅ Completed |
+| 3   | User & Organizational Unit (OU) Management | ⏳ Pending   |
+| 4   | Group Policy Configuration                 | ⏳ Pending   |
+| 5   | Domain Joining (Windows 10 Client)         | ⏳ Pending   |
+| 6   | DNS & Networking Configuration             | ⏳ Pending   |
+| 7   | Troubleshooting Scenarios                  | ⏳ Pending   |
+| 8   | Security Hardening & Best Practices        | ⏳ Pending   |
 
 ---
 
-## 🧪 Lab Structure (Planned)
-This repository will include multiple labs:
+# 🚀 Lab 1 — Windows Server Installation
 
-1. ✅ Windows Server Installation *(Completed)*
-2. ⏳ Active Directory Domain Controller Setup  
-3. ⏳ User & Organizational Unit (OU) Management  
-4. ⏳ Group Policy Configuration  
-5. ⏳ Domain Joining (Windows 10 Client)  
-6. ⏳ DNS & Networking Configuration  
-7. ⏳ Troubleshooting Scenarios  
-8. ⏳ Security Hardening & Best Practices  
+## 🖥️ Environment & VM Configuration
 
----
+<table>
+<tr>
+<td width="50%" valign="top">
 
-# 🚀 Lab 1: Windows Server Installation (Initial Setup)
+**Environment**
 
-## 🖥️ Environment Setup
-- Host OS: Ubuntu  
-- Virtualization Tool: VMware Workstation Pro  
+- **Host OS:** Ubuntu
+- **Virtualization:** VMware Workstation Pro
+- **Guest OS:** Windows Server 2025
 
----
+</td>
+<td width="50%" valign="top">
 
-## 📥 Step 1: Install VMware Workstation Pro on Ubuntu
-Download and install VMware Workstation Pro on your Ubuntu machine.
+**Recommended VM Specs**
 
----
+- **RAM:** 2 GB min _(4 GB recommended)_
+- **Storage:** 60 GB minimum
+- **CPU:** 2 cores
+- **Network:** NAT _(for internet access)_
 
-## 📥 Step 2: Download Windows Server ISO
-Download the **Windows Server 2025 ISO** from Microsoft (Evaluation Center or official source).
+</td>
+</tr>
+</table>
 
 ---
 
-## 🆕 Step 3: Create a Virtual Machine
-Create a new VM in VMware with the following configuration:
+## 📋 Setup Steps
 
-### 🔧 Recommended Configuration
-- RAM: 2 GB (Minimum) *(4 GB recommended for better performance)*  
-- Storage: 60 GB (Minimum)  
-- CPU: 2 cores (recommended)  
-- Network: NAT (for internet access)
+**Step 1 — Install VMware Workstation Pro**
+Download and install VMware Workstation Pro on your Ubuntu host machine.
 
----
+**Step 2 — Download Windows Server ISO**
+Grab the **Windows Server 2025 ISO** from the [Microsoft Evaluation Center](https://www.microsoft.com/en-us/evalcenter/).
 
-## 💿 Step 4: Install Windows Server
-- Attach the downloaded ISO file to the VM  
-- Power on the virtual machine  
-- Follow the Windows Server installation wizard  
-- Select appropriate edition (e.g., Standard with Desktop Experience)  
-- Complete installation and login  
+**Step 3 — Create a New Virtual Machine**
+Create a new VM in VMware using the recommended configuration above.
+
+**Step 4 — Install Windows Server**
+Attach the ISO → Power on the VM → Follow the installation wizard → Select **Standard with Desktop Experience** → Complete setup and log in.
 
 ---
 
 ## ✅ Outcome
-- Successfully installed Windows Server 2025 on VMware  
-- Virtual machine is fully operational  
-- Ready for Active Directory configuration (next lab)  
+
+- Successfully installed **Windows Server 2025** on VMware Workstation
+- Virtual machine is fully operational and accessible
+- Environment is ready for **Active Directory configuration** _(Lab 2)_
 
 ---
 
-## 📸 Screenshots # 🧩 Active Directory & Windows Server Labs
-
+## 📸 Screenshots
 
 <p align="center">
   <img src="images/image.png" width="45%" />
   <img src="images/image-2.png" width="45%" />
 </p>
 
+---
+
+# 🚀 Lab 2 — Active Directory Domain Controller Setup
+
+## 🖥️ What Was Configured
+
+<table>
+<tr>
+<td width="33%" valign="top">
+ 
+**🖊️ Renamed the PC**
+- Renamed the server from the default machine name to a meaningful hostname before promoting it to a Domain Controller
+- Requires a **restart** to apply
+ 
+</td>
+<td width="33%" valign="top">
+ 
+**🌐 Static IP Address**
+- Assigned a **static IPv4 address** to ensure the DC is always reachable at a fixed address on the network
+- Required for reliable DNS and AD DS operation
+ 
+</td>
+<td width="33%" valign="top">
+ 
+**🗂️ Installed Active Directory**
+- Installed the **AD DS role** via Server Manager
+- Ran the **AD DS Configuration Wizard** to promote the server to a Domain Controller
+- Created a new **forest and root domain**
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Rename the PC**
+Open **Settings → System → About → Rename this PC** → VM-DEV-WINSERV-01→ Restart to apply.
+ 
+**Step 2 — Configure a Static IP Address**
+Go to **Network Adapter Settings → IPv4 Properties** and set:
+ 
+| Field | Example Value |
+|-------|--------------|
+| IP Address | `192.168.1.10` |
+| Subnet Mask | `255.255.255.0` |
+| Default Gateway | `192.168.1.1` |
+| Preferred DNS | `127.0.0.1`  |
+ 
+**Step 3 — Install the AD DS Role**
+Open **Server Manager → Add Roles and Features** → Select **Active Directory Domain Services** → Proceed through the wizard and install.
+ 
+**Step 4 — Promote Server to Domain Controller**
+After installation, click **Promote this server to a domain controller** in Server Manager → Select **Add a new forest** → Enter your **Root Domain Name** (e.g., `corp.local`) → Set a DSRM password → Complete the wizard → Server will **restart automatically**.
+ 
+---
+ 
+## ✅ Outcome
+ 
+- Server successfully **renamed** to a meaningful hostname
+- **Static IP** configured — DC is reachable at a fixed network address
+- **AD DS role** installed and server promoted to **Domain Controller**
+- New **Active Directory forest and domain** created and operational
+
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="images/lab2-image-3.png" width="45%" />
+  <img src="images/lab2-image2.png" width="45%" />
+</p>
+ 
+---
