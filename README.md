@@ -57,7 +57,7 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 | --- | ------------------------------------------ | ------------ |
 | 1   | Windows Server Installation                | ✅ Completed |
 | 2   | Active Directory Domain Controller Setup   | ✅ Completed |
-| 3   | User & Organizational Unit (OU) Management | ⏳ Pending   |
+| 3   | User & Organizational Unit (OU) Management | ✅ Completed   |
 | 4   | Group Policy Configuration                 | ⏳ Pending   |
 | 5   | Domain Joining (Windows 10 Client)         | ⏳ Pending   |
 | 6   | DNS & Networking Configuration             | ⏳ Pending   |
@@ -246,5 +246,85 @@ On the Windows 11 client, go to **Settings → System → About → Advanced sys
 </p>
  
 ---
+ # 🚀 Lab 3 — User & Organizational Unit (OU) Management
  
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**👤 Created a New User & Logged In**
+- Created a new **AD user account** via Active Directory Users and Computers (ADUC)
+- Set a secure password and configured login settings
+- Logged into the domain-joined Windows 11 PC using the **new user account** to verify access
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🗂️ Set Up an Organizational Unit (OU)**
+- Created a dedicated **Organizational Unit** in ADUC to mirror a real-world department structure
+- OUs allow administrators to apply **targeted Group Policies** and delegate permissions at a granular level
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**🧑‍💼 Added a Helpdesk User to the OU**
+- Created a ** Helpdesk user account ( `John Doe`) ** and placed it inside the newly created OU (`IT_Staff`)
+- Organised users by role/department for cleaner AD structure and easier management
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🗝️ Delegated Control**
+- Used the **Delegation of Control Wizard** to grant the Helpdesk user specific administrative permissions
+- Helpdesk can now perform tasks (e.g., create,edit or delete user,reset passwords) **without needing full Domain Admin rights**
+- Follows the **principle of least privilege**
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Create a New User Account**
+Open **Active Directory Users and Computers (ADUC)** → Expand your domain → Right-click **Users** → **New → User** → Fill in the name and username → Set a password → Finish.
+ 
+**Step 2 — Log In with the New Account**
+On the domain-joined Windows 11 PC, sign out → Log in with the new domain user credentials (e.g., `INFOTECH/john`) → Verify successful access.
+ 
+**Step 3 — Create an Organizational Unit (OU)**
+In **ADUC** → Right-click your domain → **New → Organizational Unit** → Name it (`IT_Staff`) → Click OK.
+ 
+**Step 4 — Add the Helpdesk User to the OU**
+In **ADUC** → Right-click **Users** → **New → User** → Create the Helpdesk user → Once created, drag or **move** the user into the new OU, or create it directly inside the OU from the start.
+ 
+**Step 5 — Delegate Control to the Helpdesk User**
+Right-click the **OU** in ADUC → **Delegate Control** → Click **Add** → Search for the Helpdesk user → Select the tasks to delegate (e.g., *Reset user passwords and force password change at next logon*) → Complete the wizard.
+ 
+---
+ 
+## ✅ Outcome
+ 
+- New **AD user account** created and login verified on domain-joined Windows 11 PC
+- **Organizational Unit (OU)** created to logically structure users by role
+- **Helpdesk user** added to the OU for organised, policy-ready management
+- **Control delegated** to Helpdesk user — can perform specific admin tasks without Domain Admin privileges
+- AD structure now reflects a **real-world least-privilege model**
+
+ 
+---
+ 
+## 📸 Screenshots
+ 
+<p align="center">
+  <img src="images/lab3-image-1.png" width="45%" />
+
+</p>
+ 
+---
 
