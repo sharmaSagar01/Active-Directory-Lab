@@ -130,31 +130,47 @@ Attach the ISO → Power on the VM → Follow the installation wizard → Select
 ---
 
 # 🚀 Lab 2 — Active Directory Domain Controller Setup
-
+ 
 ## 🖥️ What Was Configured
-
+ 
 <table>
 <tr>
 <td width="33%" valign="top">
  
-**🖊️ Renamed the PC**
-- Renamed the server from the default machine name to a meaningful hostname before promoting it to a Domain Controller
+**🖊️ Renamed Windows 11 PC**
+- Renamed the client machine to a meaningful hostname before joining it to the domain
 - Requires a **restart** to apply
  
 </td>
 <td width="33%" valign="top">
  
 **🌐 Static IP Address**
-- Assigned a **static IPv4 address** to ensure the DC is always reachable at a fixed address on the network
+- Assigned a **manual static IPv4 address** to the server so it is always reachable at a fixed address
 - Required for reliable DNS and AD DS operation
  
 </td>
 <td width="33%" valign="top">
  
-**🗂️ Installed Active Directory**
+**🗂️ Installed & Promoted AD DS**
 - Installed the **AD DS role** via Server Manager
-- Ran the **AD DS Configuration Wizard** to promote the server to a Domain Controller
+- Promoted the server to a **Domain Controller**
 - Created a new **forest and root domain**
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**📡 Pinged Windows Server 2025**
+- Verified **network connectivity** between the Windows 11 client and the Windows Server 2025 VM
+- Confirmed the static IP was reachable before attempting domain join
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔗 Joined Windows 11 PC to the Domain**
+- Joined the Windows 11 client machine to the **Active Directory domain**
+- Verified successful domain membership via **System Properties**
  
 </td>
 </tr>
@@ -164,41 +180,71 @@ Attach the ISO → Power on the VM → Follow the installation wizard → Select
  
 ## 📋 Setup Steps
  
-**Step 1 — Rename the PC**
-Open **Settings → System → About → Rename this PC** → VM-DEV-WINSERV-01→ Restart to apply.
+**Step 1 — Rename the Windows 11 PC**
+Open **Settings → System → About → Rename this PC** → Enter a descriptive hostname (`Workstation01`) → Restart to apply.
  
-**Step 2 — Configure a Static IP Address**
+**Step 2 — Configure a Static IP Address on the Server**
 Go to **Network Adapter Settings → IPv4 Properties** and set:
  
-| Field | Example Value |
+ ## Windows Server 2025 Static IP Configuration 
+
+| Field | Value |
 |-------|--------------|
 | IP Address | `192.168.1.10` |
 | Subnet Mask | `255.255.255.0` |
 | Default Gateway | `192.168.1.1` |
-| Preferred DNS | `127.0.0.1`  |
+| Preferred DNS | `127.0.0.1` *(points to itself after AD install)* |
  
-**Step 3 — Install the AD DS Role**
+
+## Client Machine ( Windows 11) Static IP Configuration
+
+| Field | Value |
+|-------|--------------|
+| IP Address | `192.168.1.11` |
+| Subnet Mask | `255.255.255.0` |
+| Default Gateway | `192.168.1.1` |
+| Preferred DNS | `192.168.1.10` *(points to Windows Server)* |
+| Alternate DNS | `192.168.1.1` *(points to any other server on the IP gateway)* |
+
+
+
+**Step 3 — Install the AD DS **
 Open **Server Manager → Add Roles and Features** → Select **Active Directory Domain Services** → Proceed through the wizard and install.
  
 **Step 4 — Promote Server to Domain Controller**
-After installation, click **Promote this server to a domain controller** in Server Manager → Select **Add a new forest** → Enter your **Root Domain Name** (e.g., `corp.local`) → Set a DSRM password → Complete the wizard → Server will **restart automatically**.
+After installation, click **Promote this server to a domain controller** in Server Manager → Select **Add a new forest** → Enter your **Root Domain Name** (`InfoTech.com`) → Set a DSRM password → Complete the wizard → Server will **restart automatically**.
+ 
+**Step 5 — Ping the Windows Server 2025**
+On the Windows 11 client, open **Command Prompt** and run:
+```
+ping 192.168.1.10
+```
+Confirm you receive replies — this verifies network connectivity between the client and the server before proceeding with domain join.
+ 
+**Step 6 — Join the Windows 11 PC to the Domain**
+On the Windows 11 client, go to **Settings → System → About → Advanced system settings → Computer Name → Change** → Select **Domain** → Enter your domain name (`InfoTech.com`) → Provide **Domain Admin credentials** when prompted → Restart to complete.
  
 ---
  
 ## ✅ Outcome
  
-- Server successfully **renamed** to a meaningful hostname
-- **Static IP** configured — DC is reachable at a fixed network address
+- Windows 11 client machine successfully **renamed** to a meaningful hostname
+- **Static IP** configured — server is reachable at a fixed network address
 - **AD DS role** installed and server promoted to **Domain Controller**
 - New **Active Directory forest and domain** created and operational
-
+- **Ping test** confirmed network connectivity between client and server
+- Windows 11 PC successfully **joined to the Active Directory domain**
+ 
 ---
-
+ 
 ## 📸 Screenshots
-
+ 
 <p align="center">
+  <img src="images/lab2-image-1.png" width="45%" />
+  <img src="images/lab2-image-2.png" width="45%" />
   <img src="images/lab2-image-3.png" width="45%" />
-  <img src="images/lab2-image2.png" width="45%" />
 </p>
  
 ---
+ 
+
