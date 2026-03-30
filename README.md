@@ -53,16 +53,16 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 
 ## 🧪 Lab Structure
 
-| #   | Lab                                        | Status       |
-| --- | ------------------------------------------ | ------------ |
-| 1   | Windows Server Installation                | ✅ Completed |
-| 2   | Active Directory Domain Controller Setup   | ✅ Completed |
-| 3   | User & Organizational Unit (OU) Management | ✅ Completed   |
-| 4   | Group Policy Configuration                 | ⏳ Pending   |
-| 5   | Domain Joining (Windows 10 Client)         | ⏳ Pending   |
-| 6   | DNS & Networking Configuration             | ⏳ Pending   |
-| 7   | Troubleshooting Scenarios                  | ⏳ Pending   |
-| 8   | Security Hardening & Best Practices        | ⏳ Pending   |
+| #   | Lab                                                               | Status       |
+| --- | ------------------------------------------------------------------| ------------ |
+| 1   | Windows Server Installation                                       | ✅ Completed |
+| 2   | Active Directory Domain Controller Setup                          | ✅ Completed |
+| 3   | User & Organizational Unit (OU) Management                        | ✅ Completed |
+| 4   | Active Directory Groups – Security vs Distribution & Adding Users | ✅ Completed |
+| 5   | Domain Joining (Windows 10 Client)                                | ⏳ Pending   |
+| 6   | DNS & Networking Configuration                                    | ⏳ Pending   |
+| 7   | Troubleshooting Scenarios                                         | ⏳ Pending   |
+| 8   | Security Hardening & Best Practices                               | ⏳ Pending   |
 
 ---
 
@@ -123,8 +123,8 @@ Attach the ISO → Power on the VM → Follow the installation wizard → Select
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="images/image.png" width="45%" />
-  <img src="images/image-2.png" width="45%" />
+  <img src="images/lab1/image.png" width="45%" />
+  <img src="images/lab1/image-2.png" width="45%" />
 </p>
 
 ---
@@ -240,9 +240,9 @@ On the Windows 11 client, go to **Settings → System → About → Advanced sys
 ## 📸 Screenshots
  
 <p align="center">
-  <img src="images/lab2-image-1.png" width="45%" />
-  <img src="images/lab2-image-2.png" width="45%" />
-  <img src="images/lab2-image-3.png" width="45%" />
+  <img src="images/lab2/lab2-image-1.png" width="45%" />
+  <img src="images/lab2/lab2-image-2.png" width="45%" />
+  <img src="images/lab2/lab2-image-3.png" width="45%" />
 </p>
  
 ---
@@ -322,8 +322,134 @@ Right-click the **OU** in ADUC → **Delegate Control** → Click **Add** → Se
 ## 📸 Screenshots
  
 <p align="center">
-  <img src="images/lab3-image-1.png" width="45%" />
+  <img src="images/lab3/lab3-image-1.png" width="45%" />
 
+</p>
+ 
+---
+
+# 🚀 Lab 4 — Active Directory Groups: Security vs Distribution & Adding Users
+ 
+## 🔍 Key Concept: Security vs Distribution Groups
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**🔒 Security Group — `IT_Staff`**
+- Used to **control access to resources** (folders, printers, shared drives)
+- Members: **Paula Doe**, **Ram Doe**
+- Permissions can be assigned directly to the group — no need to manage individual users
+- Best practice for enforcing **least-privilege access**
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**📧 Distribution Group — `All_Staff`**
+- Used for **email distribution lists** — cannot be used to assign resource permissions
+- Members: **Paula Doe**, **Ram Doe**, **Dave Doe**
+- Ideal for org-wide communications without granting system access
+- Not a security boundary — use Security Groups for access control
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**👥 Created Groups & Added Users**
+- Created `IT_Staff` as a **Security Group** and `All_Staff` as a **Distribution Group** in ADUC
+- Added **Paula Doe** and **Ram Doe** to `IT_Staff`
+- Added **Paula Doe**, **Ram Doe**, and **Dave Doe** to `All_Staff`
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**📁 Created & Shared a Folder**
+- Created folder `IT_Docs` on Windows Server 2025 with a file `HelloPaula.txt` inside
+- Shared `IT_Docs` with the `IT_Staff` Security Group with **Read access** via folder Properties → Sharing
+- Only members of `IT_Staff` can access the shared folder
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**✅ Verified Access — Paula Doe**
+- Logged into the Windows 11 client machine using **Paula's** domain account
+- Successfully accessed the `IT_Docs` shared folder and the `HelloPaula.txt` file
+- Confirmed Security Group permissions are working correctly
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**❌ Verified Access Denied — Dave Doe**
+- Logged into the Windows 11 client machine using **Dave's** domain account
+- Access to `IT_Docs` was **denied** — as expected, since Dave is not a member of `IT_Staff`
+- Demonstrates how Security Groups enforce access boundaries effectively
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Create the Security Group (`IT_Staff`)**
+In **ADUC** → Expand your domain → Right-click **Users** (or your OU) → **New → Group** → Name it `IT_Staff` → Set *Group type* to **Security** → Set *Group scope* to **Global** → Click OK.
+ 
+**Step 2 — Create the Distribution Group (`All_Staff`)**
+Repeat the same process → Name it `All_Staff` → Set *Group type* to **Distribution** → Click OK.
+ 
+**Step 3 — Create Users & Add to Groups**
+Create users **Paula Doe**, **Ram Doe**, and **Dave Doe** in ADUC. Then:
+ 
+| User | IT_Staff (Security) | All_Staff (Distribution) |
+|------|:-------------------:|:------------------------:|
+| Paula Doe | ✅ | ✅ |
+| Ram Doe | ✅ | ✅ |
+| Dave Doe | ❌ | ✅ |
+ 
+To add members: Right-click the group → **Properties → Members tab → Add** → Search for the user → OK.
+ 
+**Step 4 — Create the Shared Folder on the Server**
+On Windows Server 2025, create a folder named `IT_Docs` → Inside, create a text file named `HelloPaula.txt` → Right-click `IT_Docs` → **Properties → Sharing tab → Share** → Type `IT_Staff` → Set permission to **Read** → Share.
+ 
+**Step 5 — Verify Access as Paula Doe (IT_Staff Member)**
+On the Windows 11 client, log in as **Paula Doe** → Open **File Explorer** → Navigate to `\\VM-DEV-SERV-\IT_Docs` → Confirm the folder and `HelloPaula.txt` are accessible. ✅
+ 
+**Step 6 — Verify Access Denied as Dave Doe (Non-Member)**
+Log out → Log in as **Dave Doe** → Attempt to access `\\VM-DEV-SERV-\IT_Docs` → Access should be **denied**, confirming the Security Group restriction is working as intended. ❌
+ 
+---
+ 
+## ✅ Outcome
+ 
+- Understood the difference between **Security Groups** (access control) and **Distribution Groups** (email only)
+- Created `IT_Staff` (Security) and `All_Staff` (Distribution) with the correct group types
+- Added **Paula** and **Ram** to `IT_Staff`; all three users added to `All_Staff`
+- Created shared folder `IT_Docs` with `HelloPaula.txt` and restricted access to `IT_Staff`
+- **Paula** successfully accessed the shared folder ✅ — **Dave** was correctly denied ❌
+- Demonstrated how **AD Security Groups make access management scalable and secure**
+- Ready for **Group Policy Configuration** *(Lab 5)*
+ 
+---
+ 
+## 📸 Screenshots
+ 
+<p align="center">
+  <img src="images/lab4/lab4-image-1.png" width="45%" />
+  <img src="images/lab4/lab4-image-2.png" width="45%" />
+  <img src="images/lab4/lab4-image-3.png" width="45%" />
+  <img src="images/lab4/lab4-image-4.png" width="45%" />
+  <img src="images/lab4/lab4-image-5.png" width="45%" />
 </p>
  
 ---
