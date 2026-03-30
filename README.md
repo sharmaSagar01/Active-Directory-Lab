@@ -59,10 +59,8 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 | 2   | Active Directory Domain Controller Setup                          | ✅ Completed |
 | 3   | User & Organizational Unit (OU) Management                        | ✅ Completed |
 | 4   | Active Directory Groups – Security vs Distribution & Adding Users | ✅ Completed |
-| 5   | Domain Joining (Windows 10 Client)                                | ⏳ Pending   |
-| 6   | DNS & Networking Configuration                                    | ⏳ Pending   |
-| 7   | Troubleshooting Scenarios                                         | ⏳ Pending   |
-| 8   | Security Hardening & Best Practices                               | ⏳ Pending   |
+| 5   | Group Policy Configuration – Creating & Linking a GPO             | ✅ Completed |
+
 
 ---
 
@@ -438,7 +436,6 @@ Log out → Log in as **Dave Doe** → Attempt to access `\\VM-DEV-SERV-\IT_Docs
 - Created shared folder `IT_Docs` with `HelloPaula.txt` and restricted access to `IT_Staff`
 - **Paula** successfully accessed the shared folder ✅ — **Dave** was correctly denied ❌
 - Demonstrated how **AD Security Groups make access management scalable and secure**
-- Ready for **Group Policy Configuration** *(Lab 5)*
  
 ---
  
@@ -454,3 +451,139 @@ Log out → Log in as **Dave Doe** → Attempt to access `\\VM-DEV-SERV-\IT_Docs
  
 ---
 
+# 🚀 Lab 5 — Group Policy Configuration: Creating & Linking a GPO
+ 
+## 🔍 Key Concept: GPO Creation vs Linking
+ 
+> Creating a GPO is only the first step — **until it's linked to an OU, it does absolutely nothing.**
+> This lab covers the full lifecycle: create → configure → link → force → verify.
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**📋 What is a GPO?**
+- A **Group Policy Object (GPO)** is a collection of settings that control the working environment of user accounts and computer accounts
+- GPOs are managed via the **Group Policy Management Console (GPMC)**
+- They must be **linked to an OU, domain, or site** before they take effect
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**⚙️ How GPO Application Works**
+- GPO is created in GPMC → configured with desired settings → linked to a target OU
+- Clients receive the policy either at **next login** or after running `gpupdate /force`
+- `gpresult /r` lets you verify exactly which policies are applied to a user or machine
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**🗂️ Created `All_Staff` OU & Moved Users**
+- Created a new Organizational Unit named `All_Staff` in ADUC
+- Moved all previously created users (**Paula Doe**, **Ram Doe**, **Dave Doe**) into this OU
+- Ensures the GPO targets the correct set of users when linked
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🛡️ Created GPO — `Disable_Control_Panel`**
+- Opened **Group Policy Management Console (GPMC)**
+- Created a new GPO named `Disable_Control_Panel`
+- Navigated into the GPO and **enabled the setting** to restrict access to the Control Panel and Settings
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**🔗 Linked the GPO to `All_Staff` OU**
+- Linked the `Disable_Control_Panel` GPO directly to the `All_Staff` OU
+- This ensures the policy applies to **all users inside that OU** and no one else
+- Without this link, the GPO would exist but never apply
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔄 Forced & Verified Policy Application**
+- Ran `gpupdate /force` on the server to push the policy immediately
+- Logged into the client as **Paula Doe** and ran `gpresult /r` to confirm the GPO appeared under *Applied Group Policy Objects*
+- Attempted to open **Control Panel** — access was **denied** ✅
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Create the `All_Staff` OU & Move Users**
+In **ADUC** → Right-click your domain → **New → Organizational Unit** → Name it `All_Staff` → Click OK.
+Then move **Paula Doe**, **Ram Doe**, and **Dave Doe** into it: right-click each user → **Move** → Select the `All_Staff` OU.
+ 
+**Step 2 — Create the GPO**
+Open **Group Policy Management** (via Server Manager or `gpmc.msc`) → Expand your domain → Right-click **Group Policy Objects** → **New** → Name it `Disable_Control_Panel` → Click OK.
+ - Ready for **Group Policy Configuration** *(Lab 5)*
+**Step 3 — Configure the GPO Setting**
+Right-click `Disable_Control_Panel` → **Edit** → Navigate to:
+```
+User Configuration → Policies → Administrative Templates
+→ Control Panel → Prohibit access to Control Panel and PC Settings
+```
+Double-click the setting → Set to **Enabled** → Click OK → Close the editor.
+ 
+**Step 4 — Link the GPO to the `All_Staff` OU**
+In **GPMC**, right-click the `All_Staff` OU → **Link an Existing GPO** → Select `Disable_Control_Panel` → Click OK.
+The GPO is now active for all users in that OU.
+ 
+**Step 5 — Force the Policy Update on the Server**
+On the Windows Server, open **Command Prompt** as Administrator and run:
+```
+gpupdate /force
+```
+This pushes the policy immediately without waiting for the next refresh cycle.
+ 
+**Step 6 — Verify GPO Application on the Client**
+Log into the Windows 11 client as **Paula Doe** → Open **Command Prompt** and run:
+```
+gpresult /r
+```
+Confirm `Disable_Control_Panel` appears under **Applied Group Policy Objects** in the *User Settings* section.
+ 
+**Step 7 — Confirm Control Panel is Blocked**
+While still logged in as Paula, attempt to open **Control Panel** or **Settings** → Access should be **denied** with a restriction message, confirming the GPO is working as expected. ✅
+ 
+---
+ 
+## ✅ Outcome
+ 
+- Created `All_Staff` OU and moved all users into it for targeted policy application
+- Created the `Disable_Control_Panel` GPO in Group Policy Management Console
+- Enabled the **Prohibit access to Control Panel and PC Settings** policy within the GPO
+- Successfully **linked** the GPO to the `All_Staff` OU
+- Ran `gpupdate /force` to push the policy immediately — no reboot required
+- Verified via `gpresult /r` that the GPO appeared under applied policies on the client machine
+- Confirmed **Control Panel access was denied** on Paula's account ✅
+
+ 
+---
+ 
+## 📸 Screenshots
+ 
+<p align="center">
+  <img src="images/lab5/lab5-image-1.png" width="45%" />
+  <img src="images/lab5/lab5-image-2.png" width="45%" />
+  <img src="images/lab5/lab5-image-3.png" width="45%" />
+  <img src="images/lab5/lab5-image-5.png" width="45%" />
+</p>
+ 
+---
