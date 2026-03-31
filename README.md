@@ -54,14 +54,14 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 ## 🧪 Lab Structure
 
 | #   | Lab                                                               | Status       |
-| --- | ------------------------------------------------------------------| ------------ |
+| --- | ----------------------------------------------------------------- | ------------ |
 | 1   | Windows Server Installation                                       | ✅ Completed |
 | 2   | Active Directory Domain Controller Setup                          | ✅ Completed |
 | 3   | User & Organizational Unit (OU) Management                        | ✅ Completed |
 | 4   | Active Directory Groups – Security vs Distribution & Adding Users | ✅ Completed |
 | 5   | Group Policy Configuration – Creating & Linking a GPO             | ✅ Completed |
 | 6   | Folder Redirection via Group Policy                               | ✅ Completed |
-
+| 7   | Mapping Network Drives via Group Policy                           | ✅ Completed |
 
 ---
 
@@ -129,9 +129,9 @@ Attach the ISO → Power on the VM → Follow the installation wizard → Select
 ---
 
 # 🚀 Lab 2 — Active Directory Domain Controller Setup
- 
+
 ## 🖥️ What Was Configured
- 
+
 <table>
 <tr>
 <td width="33%" valign="top">
@@ -186,62 +186,63 @@ Open **Settings → System → About → Rename this PC** → Enter a descriptiv
 **Step 2 — Configure a Static IP Address on the Server**
 Go to **Network Adapter Settings → IPv4 Properties** and set:
  
- ## Windows Server 2025 Static IP Configuration 
+ ## Windows Server 2025 Static IP Configuration
 
-| Field | Value |
-|-------|--------------|
-| IP Address | `192.168.1.10` |
-| Subnet Mask | `255.255.255.0` |
-| Default Gateway | `192.168.1.1` |
-| Preferred DNS | `127.0.0.1` *(points to itself after AD install)* |
- 
+| Field           | Value                                             |
+| --------------- | ------------------------------------------------- |
+| IP Address      | `192.168.1.10`                                    |
+| Subnet Mask     | `255.255.255.0`                                   |
+| Default Gateway | `192.168.1.1`                                     |
+| Preferred DNS   | `127.0.0.1` _(points to itself after AD install)_ |
 
 ## Client Machine ( Windows 11) Static IP Configuration
 
-| Field | Value |
-|-------|--------------|
-| IP Address | `192.168.1.11` |
-| Subnet Mask | `255.255.255.0` |
-| Default Gateway | `192.168.1.1` |
-| Preferred DNS | `192.168.1.10` *(points to Windows Server)* |
-| Alternate DNS | `192.168.1.1` *(points to any other server on the IP gateway)* |
-
-
+| Field           | Value                                                          |
+| --------------- | -------------------------------------------------------------- |
+| IP Address      | `192.168.1.11`                                                 |
+| Subnet Mask     | `255.255.255.0`                                                |
+| Default Gateway | `192.168.1.1`                                                  |
+| Preferred DNS   | `192.168.1.10` _(points to Windows Server)_                    |
+| Alternate DNS   | `192.168.1.1` _(points to any other server on the IP gateway)_ |
 
 **Step 3 — Install the AD DS **
 Open **Server Manager → Add Roles and Features** → Select **Active Directory Domain Services** → Proceed through the wizard and install.
- 
+
 **Step 4 — Promote Server to Domain Controller**
 After installation, click **Promote this server to a domain controller** in Server Manager → Select **Add a new forest** → Enter your **Root Domain Name** (`InfoTech.com`) → Set a DSRM password → Complete the wizard → Server will **restart automatically**.
- 
+
 **Step 5 — Ping the Windows Server 2025**
 On the Windows 11 client, open **Command Prompt** and run:
+
 ```
 ping 192.168.1.10
 ```
+
 Confirm you receive replies — this verifies network connectivity between the client and the server before proceeding with domain join.
- 
+
 **Step 6 — Join the Windows 11 PC to the Domain**
 On the Windows 11 client, go to **Settings → System → About → Advanced system settings → Computer Name → Change** → Select **Domain** → Enter your domain name (`InfoTech.com`) → Provide **Domain Admin credentials** when prompted → Restart to complete.
- 
+
 ---
- 
+
 ## ✅ Outcome
- 
+
 - Windows 11 client machine successfully **renamed** to a meaningful hostname
 - **Static IP** configured — server is reachable at a fixed network address
 - **AD DS role** installed and server promoted to **Domain Controller**
 - New **Active Directory forest and domain** created and operational
 - **Ping test** confirmed network connectivity between client and server
 - Windows 11 PC successfully **joined to the Active Directory domain**
- 
+
 ---
- 
+
 ## 📸 Screenshots
- 
+
 <p align="center">
   <img src="images/lab2/lab2-image-1.png" width="45%" />
   <img src="images/lab2/lab2-image-2.png" width="45%" />
+</p>
+<p align="center">
   <img src="images/lab2/lab2-image-3.png" width="45%" />
 </p>
  
@@ -316,11 +317,10 @@ Right-click the **OU** in ADUC → **Delegate Control** → Click **Add** → Se
 - **Control delegated** to Helpdesk user — can perform specific admin tasks without Domain Admin privileges
 - AD structure now reflects a **real-world least-privilege model**
 
- 
 ---
- 
+
 ## 📸 Screenshots
- 
+
 <p align="center">
   <img src="images/lab3/lab3-image-1.png" width="45%" />
 
@@ -329,9 +329,9 @@ Right-click the **OU** in ADUC → **Delegate Control** → Click **Add** → Se
 ---
 
 # 🚀 Lab 4 — Active Directory Groups: Security vs Distribution & Adding Users
- 
+
 ## 🔍 Key Concept: Security vs Distribution Groups
- 
+
 <table>
 <tr>
 <td width="50%" valign="top">
@@ -446,20 +446,25 @@ Log out → Log in as **Dave Doe** → Attempt to access `\\VM-DEV-SERV-\IT_Docs
 <p align="center">
   <img src="images/lab4/lab4-image-1.png" width="45%" />
   <img src="images/lab4/lab4-image-2.png" width="45%" />
+</p>
+<p align="center">
   <img src="images/lab4/lab4-image-3.png" width="45%" />
   <img src="images/lab4/lab4-image-4.png" width="45%" />
+</p>
+
+<p align="center">
   <img src="images/lab4/lab4-image-5.png" width="45%" />
 </p>
  
 ---
 
 # 🚀 Lab 5 — Group Policy Configuration: Creating & Linking a GPO
- 
+
 ## 🔍 Key Concept: GPO Creation vs Linking
- 
+
 > Creating a GPO is only the first step — **until it's linked to an OU, it does absolutely nothing.**
 > This lab covers the full lifecycle: create → configure → link → force → verify.
- 
+
 <table>
 <tr>
 <td width="50%" valign="top">
@@ -553,16 +558,7 @@ On the Windows Server, open **Command Prompt** as Administrator and run:
 gpupdate /force
 ```
 This pushes the policy immediately without waiting for the next refresh cycle.
- 
-**Step 6 — Verify GPO Application on the Client**
-Log into the Windows 11 client as **Paula Doe** → Open **Command Prompt** and run:
-```
-gpresult /r
-```
-Confirm `Disable_Control_Panel` appears under **Applied Group Policy Objects** in the *User Settings* section.
- 
-**Step 7 — Confirm Control Panel is Blocked**
-While still logged in as Paula, attempt to open **Control Panel** or **Settings** → Access should be **denied** with a restriction message, confirming the GPO is working as expected. ✅
+ l Panel** or **Settings** → Access should be **denied** with a restriction message, confirming the GPO is working as expected. ✅
  
 ---
  
@@ -576,27 +572,29 @@ While still logged in as Paula, attempt to open **Control Panel** or **Settings*
 - Verified via `gpresult /r` that the GPO appeared under applied policies on the client machine
 - Confirmed **Control Panel access was denied** on Paula's account ✅
 
- 
 ---
- 
+
 ## 📸 Screenshots
- 
+
 <p align="center">
   <img src="images/lab5/lab5-image-1.png" width="45%" />
   <img src="images/lab5/lab5-image-2.png" width="45%" />
-  <img src="images/lab5/lab5-image-3.png" width="45%" />
-  <img src="images/lab5/lab5-image-5.png" width="45%" />
+  
+</p>
+<p align="center">
+<img src="images/lab5/lab5-image-3.png" width="45%" />
+<img src="images/lab5/lab5-image-5.png" width="45%" /> 
 </p>
  
 ---
 
 # 🚀 Lab 6 — Folder Redirection via Group Policy
- 
+
 ## 🔍 Key Concept: What is Folder Redirection?
- 
+
 > By default, a user's Documents folder lives **only on their local machine** — if the machine fails or they log in from a different PC, their files are gone.
 > **Folder Redirection** uses a GPO to transparently point each user's personal folders (e.g., Documents) to a **central location on the server** — so files follow the user, not the machine.
- 
+
 <table>
 <tr>
 <td width="50%" valign="top">
@@ -721,6 +719,164 @@ Attempt to navigate to `\\ServerName\Redirected_Folders\Paula` → Access should
 <p align="center">
   <img src="images/lab6/lab6-image-1.png" width="45%" />
   <img src="images/lab6/lab6-image-2.png" width="45%" />
+</p>
+ 
+---
+
+# 🚀 Lab 7 — Mapping Network Drives via Group Policy
+
+## 🔍 Key Concept: Shared Drives vs Personal Drives
+
+> In an enterprise environment, users need two types of mapped drives:
+> a **shared group drive** (same folder for everyone in a department) and a **personal drive** (private to each individual user).
+> Both can be automatically mapped at login using GPO — no manual setup needed on each machine.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**📁 Group Drive — `HR` Share**
+- A single shared folder (`C:\Shares\HR`) accessible to **all members of the HR Security Group**
+- Mapped as **drive Z:** on every HR member's machine automatically
+- Permissions are scoped to the `HR` group — non-members cannot access it
+- Ideal for department-wide files, templates, and shared resources
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔐 Personal Drive — `Personal` Share with `%username%`**
+- A single share (`C:\Shares\Personal`) that uses the **`%username%` variable** to map a private subfolder per user
+- Paula sees `paula (\\VM-DEV-WINSERV-\Personal)` — Dave sees his own — neither can access the other's
+- Centralises personal storage on the server while keeping each user's data **completely isolated**
+- Replaces the need for local user profile storage on individual machines
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**📂 Created Shared Folders on the Server**
+- Created `C:\Shares\HR` and `C:\Shares\Personal` on Windows Server 2025
+- Shared both via **Server Manager → File and Storage Services → Shares → New Share Wizard**
+- Share names: `HR` (remote path `\\VM-DEV-WINSERV-01\HR`) and `Personal` (`\\VM-DEV-WINSERV-01\Personal`)
+- Both confirmed live in the Shares panel alongside IT_Docs and RedirectedFolders
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔒 Configured Folder Permissions**
+- Opened folder **Properties → Security** on both shares
+- **Disabled inheritance** to remove default permissions and start clean
+- Assigned the `HR` Security Group explicit permissions to the `HR` share
+- Configured the `Personal` share to allow users access only to their own subfolder via `%username%`
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**👥 Created `HR` Security Group in ADUC**
+- Opened **Active Directory Users and Computers** in the `InfoTech.com` domain
+- Created a new group named `HR` with **Global scope** and **Security** type
+- Added the relevant users to the `HR` group so they inherit access to the HR shared drive
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🗺️ Mapped Network Drives on the Client**
+- **HR drive** → mapped as `Z:` pointing to `\\VM-DEV-WINSERV-01\HR` — visible to HR group members
+- **Personal drive** → mapped using `%username%` variable pointing to `\\VM-DEV-WINSERV-01\Personal\%username%` — Paula's machine shows her own `paula` subfolder automatically
+- Both drives visible under **Network Locations** in *This PC* on the Windows 11 client
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Create the Shared Folders on the Server**
+On Windows Server 2025, create `C:\Shares` → inside it, create two subfolders: `HR` and `Personal`.
+ 
+**Step 2 — Share the Folders via Server Manager**
+Open **Server Manager → File and Storage Services → Shares** → Click **Tasks → New Share** → Select **SMB Share – Quick** → Choose the folder path → Set the share names:
+ 
+| Share Name | Local Path | Remote Path |
+|------------|------------|-------------|
+| `HR` | `C:\Shares\HR` | `\\VM-DEV-WINSERV-01\HR` |
+| `Personal` | `C:\Shares\Personal` | `\\VM-DEV-WINSERV-01\Personal` |
+ 
+Complete the wizard for both shares.
+ 
+**Step 3 — Configure Folder Permissions**
+For the `HR` folder: Right-click → **Properties → Security tab → Advanced → Disable Inheritance** → Remove default entries → Add the `HR` Security Group with **Modify** or **Read & Execute** permissions as needed.
+ 
+For the `Personal` folder: Grant **Creator Owner** and **Authenticated Users** appropriate rights so each user can only access their own subfolder.
+ 
+**Step 4 — Create the `HR` Security Group in ADUC**
+Open **Active Directory Users and Computers** → Expand `InfoTech.com` → Right-click **Users** → **New → Group** → Name it `HR` → Set *Group scope* to **Global** and *Group type* to **Security** → Click OK → Add the relevant users to the group via **Properties → Members → Add**.
+ 
+**Step 5 — Map the HR Group Drive via GPO**
+Open **Group Policy Management** → Create or edit a GPO linked to the appropriate OU → Navigate to:
+```
+User Configuration → Preferences → Windows Settings → Drive Maps
+```
+Right-click → **New → Mapped Drive** → Set:
+- **Location:** `\\VM-DEV-WINSERV-01\HR`
+- **Drive Letter:** `Z:`
+- **Item-level targeting:** limit to members of the `HR` Security Group
+ 
+**Step 6 — Map the Personal Drive using `%username%`**
+In the same GPO Drive Maps section → **New → Mapped Drive** → Set:
+```
+Location: \\VM-DEV-WINSERV-01\Personal\%username%
+```
+This variable resolves automatically at login — Paula gets `\Personal\paula`, Dave gets `\Personal\dave` — each sees only their own folder.
+ 
+**Step 7 — Verify on the Client Machine**
+Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm under *Network Locations*:
+- `hr (\\Vm-dev-winserv-) (Z:)` — HR shared drive is mapped ✅
+- `paula (\\VM-DEV-WINSERV-\Personal)` — Paula's personal drive is mapped with her username ✅
+ 
+---
+ 
+## ✅ Outcome
+ 
+- Created `C:\Shares\HR` and `C:\Shares\Personal` and shared both via Server Manager
+- All 6 server shares confirmed active: IT_Docs, NETLOGON, RedirectedFolders, SYSVOL, `HR`, `Personal`
+- `HR` Security Group created in `InfoTech.com` with **Global / Security** scope
+- Folder permissions configured — inheritance disabled and access scoped to the correct groups
+- **HR shared drive** successfully mapped as `Z:` on the client machine ✅
+- **Personal drive** mapped using `%username%` — Paula's machine shows her own `paula` subfolder ✅
+- Demonstrated how `%username%` enables **one GPO setting to serve all users individually**
+- Ready for **DNS & Networking Configuration** *(Lab 8)*
+ 
+---
+ 
+## 📸 Screenshots
+ 
+<p align="center">
+  <img src="images/lab7/lab7-image-1.png" width="45%" />
+  <img src="images/lab7/lab7-image-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab7/lab7-image-3.png" width="45%" />
+  <img src="images/lab7/lab7-image-4.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab7/lab7-image-5.png" width="45%" />
+  <img src="images/lab7/lab7-image-6.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab7/lab7-image-7.png" width="45%" />
 </p>
  
 ---
