@@ -60,6 +60,7 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 | 3   | User & Organizational Unit (OU) Management                        | ✅ Completed |
 | 4   | Active Directory Groups – Security vs Distribution & Adding Users | ✅ Completed |
 | 5   | Group Policy Configuration – Creating & Linking a GPO             | ✅ Completed |
+| 6   | Folder Redirection via Group Policy                               | ✅ Completed |
 
 
 ---
@@ -147,6 +148,7 @@ Attach the ISO → Power on the VM → Follow the installation wizard → Select
 - Required for reliable DNS and AD DS operation
  
 </td>
+<td width="33%" valign="top">
 <td width="33%" valign="top">
  
 **🗂️ Installed & Promoted AD DS**
@@ -584,6 +586,141 @@ While still logged in as Paula, attempt to open **Control Panel** or **Settings*
   <img src="images/lab5/lab5-image-2.png" width="45%" />
   <img src="images/lab5/lab5-image-3.png" width="45%" />
   <img src="images/lab5/lab5-image-5.png" width="45%" />
+</p>
+ 
+---
+
+# 🚀 Lab 6 — Folder Redirection via Group Policy
+ 
+## 🔍 Key Concept: What is Folder Redirection?
+ 
+> By default, a user's Documents folder lives **only on their local machine** — if the machine fails or they log in from a different PC, their files are gone.
+> **Folder Redirection** uses a GPO to transparently point each user's personal folders (e.g., Documents) to a **central location on the server** — so files follow the user, not the machine.
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**📁 Why Redirect Folders?**
+- User files are stored **centrally on the server** — not on the local machine
+- Users can log into **any domain-joined PC** and access their files seamlessly
+- Simplifies **backup and disaster recovery** — back up the server, protect everyone's data
+- Transparent to the end user — Documents still appears as `Documents` on their machine
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔒 Per-User Isolation**
+- Each user gets their **own private subfolder** inside the shared redirection path
+- Permissions are automatically scoped — **Paula cannot see Dave's folder and vice versa**
+- This mirrors real-world enterprise environments where roaming profiles and folder redirection work together
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**📂 Created & Shared `Redirected_Folders` on the Server**
+- Created a folder named `Redirected_Folders` on the `C:` drive of Windows Server 2025
+- Opened **Properties → Security → Advanced** and granted **Full Control** to *Everyone*
+- This gives the GPO the ability to automatically create per-user subfolders at login
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**⚙️ Created & Linked the GPO `Folder_Redirection_Policy`**
+- In **Group Policy Management**, selected the domain → navigated to the `All_Staff` OU
+- Created a new GPO named `Folder_Redirection_Policy` and linked it directly to the `All_Staff` OU
+- Configured the GPO to redirect the **Documents** folder to `\\VM-DEV-WINSERV-\Redirected_Folders`
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**✅ Verified Redirection — Paula Doe**
+- Logged into the client as **Paula Doe** → ran `gpupdate /force` → signed out and back in
+- Navigated to `C:\Redirected_Folders` → Paula's personal subfolder was **automatically created**
+- Inside Paula's folder → `Documents` → created a new test file — confirmed redirection is working ✅
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔒 Verified Isolation — Dave Doe**
+- Logged out of Paula's account → logged in as **Dave Doe** → applied policy with `gpupdate /force`
+- Dave's own subfolder was created under `Redirected_Folders`
+- Attempted to access **Paula's subfolder** — access was **denied** ❌
+- Confirmed per-user folder isolation is enforced correctly
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Create & Share the `Redirected_Folders` Folder on the Server**
+On Windows Server 2025, create a folder at `C:\Redirected_Folders` → Right-click → **Properties → Security tab → Advanced** → Add **Everyone** with **Full Control** permissions → Apply.
+ 
+Then share the folder: **Properties → Sharing tab → Advanced Sharing** → Check *Share this folder* → Set the share name (e.g., `Redirected_Folders`) → Under **Permissions**, grant **Everyone – Full Control** → OK.
+ 
+**Step 2 — Create the GPO `Folder_Redirection_Policy`**
+Open **Group Policy Management** (`gpmc.msc`) → Expand your domain → Right-click the `All_Staff` OU → **Create a GPO in this domain and Link it here** → Name it `Folder_Redirection_Policy` → Click OK.
+*(This creates and links the GPO to the OU in one step.)*
+ 
+**Step 3 — Configure Folder Redirection inside the GPO**
+Right-click `Folder_Redirection_Policy` → **Edit** → Navigate to:
+```
+User Configuration → Policies → Windows Settings
+→ Folder Redirection → Documents
+```
+Right-click **Documents** → **Properties** → Set *Setting* to **Basic – Redirect everyone's folder to the same location** → Set the root path to:
+```
+\\VM-DEV-WINSERV-01\Redirected_Folders
+```
+Click OK → Accept any prompts about exclusive rights.
+ 
+**Step 4 — Apply the Policy on the Client (Paula Doe)**
+Log into the Windows 11 client as **Paula Doe** → Open **Command Prompt** and run:
+```
+gpupdate /force
+```
+Sign out and log back in to trigger folder redirection on first login.
+ 
+**Step 5 — Verify Paula's Redirected Folder on the Server**
+On the server, browse to `C:\Redirected_Folders` → Paula's subfolder should have been **automatically created** → Open it → navigate to `Documents` → create a new test file to confirm the redirection is live. ✅
+ 
+**Step 6 — Verify Isolation as Dave Doe**
+Log out of Paula's account → Log in as **Dave Doe** → run `gpupdate /force` → sign out and back in.
+Attempt to navigate to `\\ServerName\Redirected_Folders\Paula` → Access should be **denied** ❌, confirming that per-user folder isolation is correctly enforced.
+ 
+---
+ 
+## ✅ Outcome
+ 
+- Created and shared `Redirected_Folders` on Windows Server 2025 with correct permissions
+- Created and linked the `Folder_Redirection_Policy` GPO to the `All_Staff` OU
+- Configured **Documents** folder redirection to the central server share via GPO
+- Paula's subfolder was **automatically created** on the server upon first login ✅
+- Test file created inside Paula's redirected Documents — redirection confirmed working
+- Dave's folder was created separately — **Dave could not access Paula's folder** ❌
+- Demonstrated real-world **per-user folder isolation** and **centralised data storage**
+ 
+---
+ 
+## 📸 Screenshots
+ 
+<p align="center">
+  <img src="images/lab6/lab6-image-1.png" width="45%" />
+  <img src="images/lab6/lab6-image-2.png" width="45%" />
 </p>
  
 ---
