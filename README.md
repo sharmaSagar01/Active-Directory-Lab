@@ -857,7 +857,7 @@ Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm und
 - **HR shared drive** successfully mapped as `Z:` on the client machine ✅
 - **Personal drive** mapped using `%username%` — Paula's machine shows her own `paula` subfolder ✅
 - Demonstrated how `%username%` enables **one GPO setting to serve all users individually**
-- Ready for **DNS & Networking Configuration** *(Lab 8)*
+
  
 ---
  
@@ -878,5 +878,128 @@ Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm und
 <p align="center">
   <img src="images/lab7/lab7-image-7.png" width="45%" />
 </p>
+ 
+---
+
+# 🚀 Lab 8 — Adding a Second Domain Controller (Windows Server 2025)
+ 
+## 🔍 Key Concept: Why a Second Domain Controller?
+ 
+> A single Domain Controller is a **single point of failure** — if it goes down, the entire domain goes with it.
+> A **second DC** provides redundancy, load balancing, and ensures AD services stay available even if one server fails.
+> Any changes made on one DC — users, GPOs, policies — **automatically replicate** to the other.
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**🔁 What is AD Replication?**
+- Active Directory uses **multi-master replication** — both DCs can accept changes
+- Changes on either server sync to the other automatically via **AD Sites and Services**
+- Ensures consistency across the domain — no manual syncing required
+- Verified by creating a GPO on one server and confirming it appears on the second
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🌐 DNS Replication**
+- Both DCs run DNS — if one DC's DNS goes down, clients fail over to the second automatically
+- Each server points to **itself as the preferred DNS** and the **other DC as the alternate**
+- This cross-referencing ensures seamless name resolution across the domain at all times
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**🖥️ Deployed Second Server — `VM-DEV-WINSERV-02`**
+- Created a new VM in **VMware Workstation Pro** and installed **Windows Server 2025**
+- Named the server `VM-DEV-WINSERV-02` to distinguish it from the original DC (`VM-DEV-WINSERV-01`)
+- Installed the **Active Directory Domain Services (AD DS)** role on the new server
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🌐 Configured Static IPs & DNS on Both Servers**
+- **Server 2 (`VM-DEV-WINSERV-02`):** Static IP `192.168.1.12`, preferred DNS `192.168.1.12` *(itself)*, alternate DNS `192.168.1.10` *(Server 1)*
+- **Server 1 (`VM-DEV-WINSERV-01`):** Updated preferred DNS to `192.168.1.10` *(itself)*, alternate DNS to `192.168.1.12` *(Server 2)*
+- Each server points to itself first, then the other — ensuring DNS redundancy in both directions
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**🏛️ Promoted to Domain Controller & Joined Existing Domain**
+- On `VM-DEV-WINSERV-02`, ran the **AD DS Configuration Wizard** after installing the role
+- Selected **"Add a domain controller to an existing domain"** — joined the same domain as Server 1
+- Both DCs now visible in **Active Directory Sites and Services**
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔄 Validated AD & GPO Replication**
+- Triggered replication via **Active Directory Sites and Services → Replicate Now**
+- Created a test GPO on `VM-DEV-WINSERV-01` — confirmed it appeared automatically on `VM-DEV-WINSERV-02`
+- Proved that the replication pipeline is healthy and changes propagate across both DCs in real time
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Create & Install the Second Server VM**
+In **VMware Workstation Pro**, create a new VM using the same specs as Server 1 → Install **Windows Server 2025** → Name the machine `VM-DEV-WINSERV-02`.
+ 
+**Step 2 — Assign a Static IP to Server 2**
+On `VM-DEV-WINSERV-02`, open **Network Connections → Ethernet Properties → IPv4** and set:
+ 
+| Field | Server 1 (`VM-DEV-WINSERV-01`) | Server 2 (`VM-DEV-WINSERV-02`) |
+|-------|-------------------------------|-------------------------------|
+| IP Address | `192.168.1.10` | `192.168.1.12` |
+| Subnet Mask | `255.255.255.0` | `255.255.255.0` |
+| Default Gateway | `192.168.1.1` | `192.168.1.1` |
+| Preferred DNS | `192.168.1.10` *(itself)* | `192.168.1.12` *(itself)* |
+| Alternate DNS | `192.168.1.12` *(Server 2)* | `192.168.1.10` *(Server 1)* |
+ 
+**Step 3 — Install the AD DS Role on Server 2**
+On `VM-DEV-WINSERV-02`, open **Server Manager → Add Roles and Features** → Select **Active Directory Domain Services** → Complete the installation wizard.
+ 
+**Step 4 — Promote Server 2 to a Domain Controller**
+After installation, click **Promote this server to a domain controller** → Select **"Add a domain controller to an existing domain"** → Enter the existing domain name (e.g., `InfoTech.com`) → Provide **Domain Admin credentials** → Set a DSRM password → Complete the wizard → Server restarts automatically.
+ 
+**Step 5 — Verify Both DCs in AD Sites and Services**
+On either server, open **Active Directory Sites and Services** (`dssite.msc`) → Expand **Sites → Default-First-Site-Name → Servers** → Confirm both `VM-DEV-WINSERV-01` and `VM-DEV-WINSERV-02` are listed.
+ 
+**Step 6 — Force AD Replication**
+Right-click `VM-DEV-WINSERV-02` under Sites and Services → **Replicate Now** → Confirm the replication completes without errors. Alternatively, run on either server:
+```
+repadmin /syncall /AdeP
+```
+ 
+**Step 7 — Test GPO Replication**
+On `VM-DEV-WINSERV-01`, open **Group Policy Management** and create a new test GPO → Switch to `VM-DEV-WINSERV-02` and open Group Policy Management → Confirm the new GPO is visible, proving replication is working end-to-end. ✅
+ 
+---
+ 
+## ✅ Outcome
+ 
+- Second Windows Server 2025 VM (`VM-DEV-WINSERV-02`) deployed and domain-joined successfully
+- **AD DS role** installed and server promoted as an **additional Domain Controller** to the existing domain
+- Static IPs and cross-referenced DNS configured on both servers for full redundancy
+- Both DCs visible in **Active Directory Sites and Services**
+- **AD replication** confirmed — GPO created on Server 1 appeared automatically on Server 2 ✅
+- Domain is now **fault-tolerant** — if one DC goes offline, the other keeps the domain running
+
  
 ---
