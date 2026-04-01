@@ -62,6 +62,7 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 | 5   | Group Policy Configuration – Creating & Linking a GPO             | ✅ Completed |
 | 6   | Folder Redirection via Group Policy                               | ✅ Completed |
 | 7   | Mapping Network Drives via Group Policy                           | ✅ Completed |
+| 8   | Adding a Second Domain Controller (Server 2025)                   | ✅ Completed |
 
 ---
 
