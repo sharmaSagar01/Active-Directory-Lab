@@ -1002,5 +1002,15 @@ On `VM-DEV-WINSERV-01`, open **Group Policy Management** and create a new test G
 - **AD replication** confirmed — GPO created on Server 1 appeared automatically on Server 2 ✅
 - Domain is now **fault-tolerant** — if one DC goes offline, the other keeps the domain running
 
+---
+ ## 📸 Screenshots
  
+<p align="center">
+  <img src="images/lab8/lab8-image-1.png" width="45%" />
+  <img src="images/lab8/lab8-image-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab8/lab8-image-3.png" width="45%" />
+  <img src="images/lab8/lab8-image-4.png" width="45%" />
+</p>
 ---
