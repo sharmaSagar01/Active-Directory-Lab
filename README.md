@@ -63,6 +63,8 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 | 6   | Folder Redirection via Group Policy                               | ✅ Completed |
 | 7   | Mapping Network Drives via Group Policy                           | ✅ Completed |
 | 8   | Adding a Second Domain Controller (Server 2025)                   | ✅ Completed |
+| 9   | DHCP Server Setup & Scope Configuration                           | ✅ Completed |
+| 10  | Remote Desktop Services (RDS) Setup                               | ✅ Completed |
 
 ---
 
@@ -1180,6 +1182,142 @@ Complete the wizard and **activate the scope** when prompted → In the DHCP con
   
 </p>
 
+---
+
+# 🚀 Lab 10 — Remote Desktop Services (RDS) Setup on Windows Server 2025
+ 
+## 🔍 Key Concept: What is RDP and Why Does Security Matter?
+ 
+> **Remote Desktop Protocol (RDP)** allows administrators and authorised users to connect to a Windows Server graphically from any machine on the network — as if they were sitting right in front of it.
+> In a production AD environment, RDP access must be **explicitly enabled, scoped to specific users, and verified through the firewall** — leaving it open to everyone is a serious security risk.
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**🔐 Principle of Least Privilege for RDP**
+- RDP is **not enabled by default** on Windows Server — it must be turned on deliberately
+- Rather than allowing all domain users to connect, only **specific users are granted remote access**
+- In this lab, user **Sue** was explicitly added to the Remote Desktop Users list
+- All other domain users remain blocked from RDP — even if they can log in locally
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🧱 Firewall Verification**
+- Enabling RDP in System Properties is only half the job — the **Windows Defender Firewall** must also permit the traffic
+- The **Remote Desktop (TCP-In)** rule on port `3389` must be in an *Enabled* state
+- Checking **Firewall → Monitoring → Firewall Rules** confirms the rule is active before attempting any connection
+- This two-step check (setting + firewall) mirrors the process in a real IT support scenario
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**🖥️ Enabled Remote Desktop on the Server**
+- On the Windows Server, opened **System Properties → Remote** tab
+- Enabled **"Allow remote connections to this computer"**
+- Clicked **Select Users** → Added domain user **Sue** to the Remote Desktop Users list
+- Sue can now initiate an RDP session to the server — no other standard users can
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🧱 Verified Firewall Rule (TCP-In Port 3389)**
+- Opened **Windows Defender Firewall → Monitoring → Firewall Rules**
+- Confirmed the **Remote Desktop (TCP-In)** inbound rule is **Enabled** and **Allowed**
+- This ensures port `3389` is open and RDP traffic is not being silently dropped by the firewall
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**📡 Verified Network Connectivity from Client**
+- On the Windows 11 client machine, logged in as **Sue**
+- Opened **Command Prompt** and ran `ping 192.168.1.10` to confirm the server was reachable
+- Successful ping replies confirmed network connectivity before attempting the RDP session
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🖥️ Connected via Remote Desktop from Client**
+- On the Windows 11 client, opened **Remote Desktop Connection** (`mstsc`)
+- Entered the server IP `192.168.1.10` → authenticated with **Sue's domain credentials**
+- Successfully established a full **graphical RDP session** to the Windows Server 2025 machine ✅
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Enable Remote Desktop on the Server**
+On the Windows Server, right-click **This PC → Properties → Advanced System Settings → Remote** tab (or search *"Allow remote access"* in Settings) → Select **"Allow remote connections to this computer"** → Click OK.
+ 
+**Step 2 — Add an Authorised RDP User**
+On the same *Remote* tab, click **Select Users → Add** → Search for and select domain user `Sue` → Click OK.
+Sue is now added to the **Remote Desktop Users** group — she can connect remotely without needing local admin rights.
+ 
+**Step 3 — Verify the Firewall Rule**
+Open **Windows Defender Firewall with Advanced Security** → In the left panel, go to **Monitoring → Firewall** → Filter by *Inbound Rules* and locate **Remote Desktop (TCP-In)** → Confirm the rule is:
+- ✅ **Enabled**
+- ✅ **Action: Allow**
+- ✅ **Protocol: TCP, Port 3389**
+ 
+If the rule is disabled, right-click it → **Enable Rule**.
+ 
+**Step 4 — Ping the Server from the Client**
+On the Windows 11 client, log in as **Sue** → Open **Command Prompt** and run:
+```
+ping 192.168.1.10
+```
+Confirm you receive replies — this verifies the client can reach the server over the network before opening an RDP session.
+ 
+**Step 5 — Connect via Remote Desktop**
+On the Windows 11 client, open **Remote Desktop Connection** (search `mstsc` or open from Start) → Enter the server address:
+```
+192.168.1.10
+```
+→ Click **Connect** → Enter **Sue's domain credentials** when prompted → Accept the certificate warning if it appears → The full **Windows Server 2025 desktop** should load inside the RDP window. ✅
+ 
+---
+ 
+## ✅ Outcome
+ 
+- **Remote Desktop** successfully enabled on Windows Server 2025
+- Domain user **Sue** granted explicit RDP access via the Remote Desktop Users list
+- **Windows Defender Firewall** verified — Remote Desktop (TCP-In) rule confirmed active on port `3389`
+- `ping 192.168.1.10` from the client returned successful replies — network connectivity confirmed ✅
+- **RDP session established** from Windows 11 client as Sue — full server desktop accessible remotely ✅
+- Demonstrated secure, least-privilege remote access — only authorised users can connect via RDP
+ 
+---
+ 
+## 📸 Screenshots
+ 
+<p align="center">
+  <img src="images/lab10/lab10-image-1.png" width="45%" />
+  <img src="images/lab10/lab10-image-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab10/lab10-image-3.png" width="45%" />
+  <img src="images/lab10/lab10-image-4.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab10/lab10-image-5.png" width="45%" />
+  <img src="images/lab10/lab10-image-6.png" width="45%" />
+</p>
 
  
 ---
