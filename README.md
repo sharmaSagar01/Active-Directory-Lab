@@ -1014,3 +1014,172 @@ On `VM-DEV-WINSERV-01`, open **Group Policy Management** and create a new test G
   <img src="images/lab8/lab8-image-4.png" width="45%" />
 </p>
 ---
+
+# 🚀 Lab 9 — DHCP Server Setup & Scope Configuration
+ 
+## 🔍 Key Concept: What is DHCP and Why Does It Need AD Authorization?
+ 
+> Without DHCP, every device on a network needs a **manually assigned static IP** — impractical at any scale.
+> A **DHCP Server** automatically hands out IP addresses, subnet masks, gateways, and DNS servers to clients the moment they connect.
+> In an Active Directory environment, DHCP servers must be **authorized in AD** to prevent rogue DHCP servers from handing out incorrect IPs and disrupting the network.
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**📦 What is a DHCP Scope?**
+- A **scope** is the defined pool of IP addresses the DHCP server can lease to clients
+- Each scope has a name, an IP range, a subnet mask, exclusions, and options (DNS, gateway, lease time)
+- Exclusions carve out IPs that should **never be dynamically assigned** — protecting static devices like servers, printers, and network gear
+- This lab's scope: **`Corporate_LAN`** on the `192.168.1.0/24` network
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🛡️ Why Exclude IP Ranges?**
+- Exclusions ensure DHCP never hands out IPs already in use by static devices
+- **Lower exclusion (`192.168.1.10–99`)** — reserved for servers and infrastructure (Server 1 is `.10`, Server 2 is `.12`)
+- **Upper exclusion (`192.168.1.200–254`)** — reserved for future static devices, printers, or network equipment
+- **Effective dynamic lease pool: `192.168.1.100–199`** — 100 addresses available for client machines
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**⚙️ Installed DHCP Server Role**
+- Installed **DHCP Server** role via **Server Manager → Add Roles and Features** on `VM-WINSERV-01.InfoTech.com`
+- Added required management tools including **DHCP Server Tools**
+- Completed the **DHCP Post-Install Configuration Wizard** — security groups created and DHCP server **authorized in Active Directory** ✅
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**✅ Authorized the DHCP Server in AD**
+- Opened **DHCP Console → Action → Manage Authorized Servers**
+- Confirmed `vm-winserv-01.infotech.com` (`192.168.1.10`) is listed as an **Authorized DHCP Server**
+- Authorization prevents unauthorized DHCP servers from operating on the domain network
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**📋 Created IPv4 Scope — `Corporate_LAN`**
+- Created a new IPv4 scope named `Corporate_LAN` via the **New Scope Wizard**
+- **Full range:** `192.168.1.10` – `192.168.1.254` (`/24`, subnet mask `255.255.255.0`)
+- **Exclusions added:**
+  - `192.168.1.10` – `192.168.1.99` *(servers & static infrastructure)*
+  - `192.168.1.200` – `192.168.1.254` *(reserved for future static devices)*
+- **Effective lease pool:** `192.168.1.100` – `192.168.1.199` *(100 dynamic addresses)*
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🌐 Configured Scope Options (DNS & Domain)**
+- Set **Parent domain** to `InfoTech.com` — clients automatically receive the correct DNS suffix
+- Added both DNS servers to the scope options:
+  - `192.168.1.10` — `VM-DEV-WINSERV-01` (Primary DC)
+  - `192.168.1.12` — `VM-DEV-WINSERV-02` (Secondary DC)
+- Clients will use both DNS servers for redundant name resolution
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Install the DHCP Server Role**
+On `VM-WINSERV-01`, open **Server Manager → Add Roles and Features** → On the *Server Roles* page, check **DHCP Server** → Click **Add Features** when prompted to include management tools → Proceed through the wizard and click **Install**.
+ 
+**Step 2 — Complete the DHCP Post-Install Configuration**
+After installation, click the notification flag in Server Manager → **Complete DHCP Configuration** → Follow the wizard:
+- *Authorization:* uses domain admin credentials automatically
+- Wizard creates DHCP security groups and **authorizes the server in Active Directory**
+- Confirm the Summary shows both steps as **Done** ✅
+ 
+**Step 3 — Verify Authorization in the DHCP Console**
+Open **DHCP** from Tools in Server Manager → Right-click **DHCP** at the top → **Manage Authorized Servers** → Confirm `vm-winserv-01.infotech.com` appears at `192.168.1.10`.
+ 
+**Step 4 — Create a New IPv4 Scope**
+In the DHCP console, expand `vm-winserv-01.infotech.com` → Right-click **IPv4** → **New Scope** → Name it `Corporate_LAN` → Set the IP address range:
+ 
+| Setting | Value |
+|---------|-------|
+| Scope Name | `Corporate_LAN` |
+| Start IP | `192.168.1.10` |
+| End IP | `192.168.1.254` |
+| Subnet Mask | `255.255.255.0` (`/24`) |
+ 
+**Step 5 — Add Exclusion Ranges**
+On the *Add Exclusions* page, add both ranges to protect static devices:
+ 
+| Exclusion Range | Purpose |
+|----------------|---------|
+| `192.168.1.10` – `192.168.1.99` | Servers, DCs, static infrastructure |
+| `192.168.1.200` – `192.168.1.254` | Reserved for future static devices |
+ 
+→ **Effective dynamic pool: `192.168.1.100` – `192.168.1.199`** (100 addresses)
+ 
+**Step 6 — Configure DNS Scope Options**
+On the *Domain Name and DNS Servers* page:
+- Set **Parent domain** to `InfoTech.com`
+- Add DNS server IPs: `192.168.1.10` and `192.168.1.12`
+ 
+These are automatically pushed to every DHCP client alongside their IP lease.
+ 
+**Step 7 — Activate the Scope & Verify the Address Pool**
+Complete the wizard and **activate the scope** when prompted → In the DHCP console, expand `Scope [192.168.1.0] Corporate_LAN` → Click **Address Pool** to confirm:
+- ✅ `192.168.1.10–254` — full distribution range
+- ❌ `192.168.1.10–99` — excluded from distribution
+- ❌ `192.168.1.200–254` — excluded from distribution
+ 
+---
+ 
+## ✅ Outcome
+ 
+- **DHCP Server role** installed on `VM-WINSERV-01.InfoTech.com` with management tools
+- DHCP server successfully **authorized in Active Directory** — security groups created ✅
+- IPv4 scope `Corporate_LAN` created on the `192.168.1.0/24` network
+- Exclusions configured to protect the `192.168.1.10–99` and `192.168.1.200–254` ranges
+- **Effective dynamic lease pool: `192.168.1.100–199`** (100 addresses available for client machines)
+- DNS scope options configured with parent domain `InfoTech.com` and both DC IPs (`192.168.1.10` + `192.168.1.12`)
+- Address Pool confirmed in DHCP console — scope is active and ready to serve clients
+
+ 
+---
+ 
+## 📸 Screenshots
+ <p align="center">
+  <img src="images/lab9/lab9-image-1.png" width="45%" />
+  <img src="images/lab9/lab9-image-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab9/lab9-image-3.png" width="45%" />
+  <img src="images/lab9/lab9-image-4.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab9/lab9-image-5.png" width="45%" />
+  <img src="images/lab9/lab9-image-6.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab9/lab9-image-7.png" width="45%" />
+  <img src="images/lab9/lab9-image-8.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab9/lab9-image-9.png" width="45%" />
+  
+</p>
+
+
+ 
+---
