@@ -4,7 +4,7 @@
 
 <div align="center">
 
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow?style=flat-square)
+![Status](https://img.shields.io/badge/Status-%20Completd-green?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20Server%202025-blue?style=flat-square&logo=windows)
 ![Virtualization](https://img.shields.io/badge/VMware-Workstation%20Pro-607078?style=flat-square&logo=vmware)
 ![Host](https://img.shields.io/badge/Host-Ubuntu-E95420?style=flat-square&logo=ubuntu)
@@ -65,6 +65,7 @@ This repository documents hands-on labs for deploying and managing a **Windows S
 | 8   | Adding a Second Domain Controller (Server 2025)                   | ✅ Completed |
 | 9   | DHCP Server Setup & Scope Configuration                           | ✅ Completed |
 | 10  | Remote Desktop Services (RDS) Setup                               | ✅ Completed |
+| 11  | AD Security Basics – Password Policy & Account Lockout            | ✅ Completed |
 
 ---
 
@@ -1319,5 +1320,167 @@ On the Windows 11 client, open **Remote Desktop Connection** (search `mstsc` or 
   <img src="images/lab10/lab10-image-6.png" width="45%" />
 </p>
 
+ 
+---
+
+# 🚀 Lab 11 — AD Security Basics: Password Policy & Account Lockout
+ 
+## 🔍 Key Concept: Why Password & Lockout Policies Matter
+ 
+> **Weak or eternal passwords are one of the most exploited attack vectors in any organisation.**
+> Active Directory's **Default Domain Policy** lets you enforce password expiry and account lockout domain-wide — every user, every machine — from a single GPO.
+> This lab simulates a real IT support scenario: a user gets locked out after failed login attempts, and the helpdesk must unlock the account.
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**🔑 Password Policy**
+- **Maximum password age: 30 days** — users are forced to change their password every month
+- Prevents old, compromised credentials from remaining valid indefinitely
+- Configured in the **Default Domain Policy** so it applies automatically to every user in the `InfoTech.com` domain
+- In production, this is typically paired with minimum length and complexity requirements
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🔒 Account Lockout Policy**
+- **Lockout threshold: 5 failed attempts** — after 5 wrong passwords, the account is automatically locked
+- Defeats brute-force and password-spray attacks — an attacker cannot try thousands of passwords
+- A locked account **cannot log in at all** until an administrator unlocks it in ADUC
+- The lockout is visible on the user's **Account tab** in ADUC — the "Unlock account" checkbox appears ticked when locked
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 🖥️ What Was Configured
+ 
+<table>
+<tr>
+<td width="50%" valign="top">
+ 
+**⚙️ Configured Default Domain Policy**
+- Opened **Group Policy Management** → edited the **Default Domain Policy** (linked at the domain root — applies to all users)
+- Navigated to **Account Policies → Password Policy** → set **Maximum password age** to `30 days`
+- Navigated to **Account Policies → Account Lockout Policy** → set **Account lockout threshold** to `5` invalid attempts
+- Ran `gpupdate /force` to push the policy immediately across the domain
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**🧪 Simulated Lockout — Sue's Account**
+- Attempted to log into the domain with **Sue's account** (`INFOTECH\sue`) using incorrect passwords **5 times** in a row
+- On the 5th failed attempt, the account was **automatically locked** by the lockout policy
+- Further login attempts were denied — confirming the policy is working as intended ✅
+ 
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+ 
+**🔓 Unlocked Sue's Account in ADUC**
+- On the Windows Server, opened **Active Directory Users and Computers (ADUC)**
+- Navigated to `InfoTech.com → All_Staff` → located **Sue**
+- Double-clicked Sue → **Account tab** → the **"Unlock account. This account is currently locked out on this Active Directory Domain Controller"** checkbox was visible and ticked
+- Checked the box → clicked **Apply → OK** — account unlocked immediately
+ 
+</td>
+<td width="50%" valign="top">
+ 
+**✅ Verified Account is Active**
+- After unlocking, Sue was able to log back in successfully with correct credentials
+- Confirmed the lockout policy correctly triggers at **5 failed attempts** and that admin unlock works as expected
+- This mirrors a common **real-world IT Helpdesk ticket**: *"User locked out — please unlock my account"*
+ 
+</td>
+</tr>
+</table>
+ 
+---
+ 
+## 📋 Setup Steps
+ 
+**Step 1 — Open the Default Domain Policy**
+Open **Group Policy Management** (`gpmc.msc`) → Expand `InfoTech.com` → Click **Default Domain Policy** → Right-click → **Edit**.
+ 
+**Step 2 — Set the Password Policy**
+In the Group Policy Editor, navigate to:
+```
+Computer Configuration → Policies → Windows Settings
+→ Security Settings → Account Policies → Password Policy
+```
+Set the following:
+ 
+| Policy Setting | Value |
+|----------------|-------|
+| Maximum password age | `30 days` |
+| Minimum password age | `1 day` *(recommended)* |
+| Minimum password length | `8 characters` *(recommended)* |
+| Password must meet complexity requirements | `Enabled` *(recommended)* |
+ 
+**Step 3 — Set the Account Lockout Policy**
+In the same editor, navigate to:
+```
+Computer Configuration → Policies → Windows Settings
+→ Security Settings → Account Policies → Account Lockout Policy
+```
+Set the following:
+ 
+| Policy Setting | Value |
+|----------------|-------|
+| Account lockout threshold | `5 invalid logon attempts` |
+| Account lockout duration | `30 minutes` *(or 0 for admin-only unlock)* |
+| Reset account lockout counter after | `30 minutes` |
+ 
+**Step 4 — Apply the Policy**
+Close the editor → On the server, open **Command Prompt** as Administrator and run:
+```
+gpupdate /force
+```
+The password and lockout policies are now active for all users in the `InfoTech.com` domain.
+ 
+**Step 5 — Test the Lockout (Sue's Account)**
+On the Windows 11 client, attempt to log in as `INFOTECH\sue` with an **incorrect password 5 times** in a row → On the 5th failure, the account should be locked and further login attempts denied. ✅
+ 
+**Step 6 — Unlock the Account in ADUC**
+On the Windows Server, open **ADUC** → Expand `InfoTech.com` → navigate to the `All_Staff` OU → Double-click **Sue** → Go to the **Account** tab → Check **"Unlock account"** → Click **Apply → OK**.
+ 
+Sue's account is immediately active again and she can log in with her correct credentials.
+ 
+---
+ 
+## ✅ Outcome
+ 
+- **Default Domain Policy** updated with password and lockout settings — applies domain-wide to all users in `InfoTech.com`
+- **Maximum password age** set to `30 days` — users must rotate passwords monthly
+- **Account lockout threshold** set to `5 failed attempts` — brute-force attacks are mitigated
+- `gpupdate /force` applied the policy immediately without requiring a reboot
+- **Sue's account was successfully locked** after 5 incorrect login attempts ✅
+- **Account unlocked via ADUC** — Account tab → "Unlock account" checkbox → Apply ✅
+- Demonstrated a real-world **IT Helpdesk account unlock workflow**
+ 
+---
+ 
+## 📸 Screenshots
+ 
+<p align="center">
+  <img src="images/lab11/lab11-image-1.png" width="45%" />
+  <img src="images/lab11/lab11-image-2.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab11/lab11-image-3.png" width="45%" />
+  <img src="images/lab11/lab11-image-4.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab11/lab11-image-5.png" width="45%" />
+  <img src="images/lab11/lab11-image-6.png" width="45%" />
+</p>
+<p align="center">
+  <img src="images/lab11/lab11-image-7.png" width="45%" />
+  
+</p>
  
 ---
