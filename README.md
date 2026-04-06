@@ -119,7 +119,7 @@ Attach the ISO → Power on the VM → Follow the installation wizard → Select
 
 - Successfully installed **Windows Server 2025** on VMware Workstation
 - Virtual machine is fully operational and accessible
-- Environment is ready for **Active Directory configuration** _(Lab 2)_
+- Environment is ready for **Active Directory configuration** 
 
 ---
 
@@ -427,10 +427,10 @@ To add members: Right-click the group → **Properties → Members tab → Add**
 On Windows Server 2025, create a folder named `IT_Docs` → Inside, create a text file named `HelloPaula.txt` → Right-click `IT_Docs` → **Properties → Sharing tab → Share** → Type `IT_Staff` → Set permission to **Read** → Share.
  
 **Step 5 — Verify Access as Paula Doe (IT_Staff Member)**
-On the Windows 11 client, log in as **Paula Doe** → Open **File Explorer** → Navigate to `\\VM-DEV-SERV-\IT_Docs` → Confirm the folder and `HelloPaula.txt` are accessible. ✅
+On the Windows 11 client, log in as **Paula Doe** → Open **File Explorer** → Navigate to `\\VM-WINSERV-01\IT_Docs` → Confirm the folder and `HelloPaula.txt` are accessible. ✅
  
 **Step 6 — Verify Access Denied as Dave Doe (Non-Member)**
-Log out → Log in as **Dave Doe** → Attempt to access `\\VM-DEV-SERV-\IT_Docs` → Access should be **denied**, confirming the Security Group restriction is working as intended. ❌
+Log out → Log in as **Dave Doe** → Attempt to access `\\VM-WINSERV-01\IT_Docs` → Access should be **denied**, confirming the Security Group restriction is working as intended. ❌
  
 ---
  
@@ -640,7 +640,7 @@ This pushes the policy immediately without waiting for the next refresh cycle.
 **⚙️ Created & Linked the GPO `Folder_Redirection_Policy`**
 - In **Group Policy Management**, selected the domain → navigated to the `All_Staff` OU
 - Created a new GPO named `Folder_Redirection_Policy` and linked it directly to the `All_Staff` OU
-- Configured the GPO to redirect the **Documents** folder to `\\VM-DEV-WINSERV-\Redirected_Folders`
+- Configured the GPO to redirect the **Documents** folder to `\\VM-WINSERV-01\Redirected_Folders`
  
 </td>
 </tr>
@@ -702,7 +702,7 @@ On the server, browse to `C:\Redirected_Folders` → Paula's subfolder should ha
  
 **Step 6 — Verify Isolation as Dave Doe**
 Log out of Paula's account → Log in as **Dave Doe** → run `gpupdate /force` → sign out and back in.
-Attempt to navigate to `\\ServerName\Redirected_Folders\Paula` → Access should be **denied** ❌, confirming that per-user folder isolation is correctly enforced.
+Attempt to navigate to `\\VM-WINSERV-01\Redirected_Folders\Paula` → Access should be **denied** ❌, confirming that per-user folder isolation is correctly enforced.
  
 ---
  
@@ -750,7 +750,7 @@ Attempt to navigate to `\\ServerName\Redirected_Folders\Paula` → Access should
  
 **🔐 Personal Drive — `Personal` Share with `%username%`**
 - A single share (`C:\Shares\Personal`) that uses the **`%username%` variable** to map a private subfolder per user
-- Paula sees `paula (\\VM-DEV-WINSERV-\Personal)` — Dave sees his own — neither can access the other's
+- Paula sees `paula (\\VM-WINSERV-01\Personal)` — Dave sees his own — neither can access the other's
 - Centralises personal storage on the server while keeping each user's data **completely isolated**
 - Replaces the need for local user profile storage on individual machines
  
@@ -769,7 +769,7 @@ Attempt to navigate to `\\ServerName\Redirected_Folders\Paula` → Access should
 **📂 Created Shared Folders on the Server**
 - Created `C:\Shares\HR` and `C:\Shares\Personal` on Windows Server 2025
 - Shared both via **Server Manager → File and Storage Services → Shares → New Share Wizard**
-- Share names: `HR` (remote path `\\VM-DEV-WINSERV-01\HR`) and `Personal` (`\\VM-DEV-WINSERV-01\Personal`)
+- Share names: `HR` (remote path `\\VM-WINSERV-01\HR`) and `Personal` (`\\VM-WINSERV-01\Personal`)
 - Both confirmed live in the Shares panel alongside IT_Docs and RedirectedFolders
  
 </td>
@@ -795,8 +795,8 @@ Attempt to navigate to `\\ServerName\Redirected_Folders\Paula` → Access should
 <td width="50%" valign="top">
  
 **🗺️ Mapped Network Drives on the Client**
-- **HR drive** → mapped as `Z:` pointing to `\\VM-DEV-WINSERV-01\HR` — visible to HR group members
-- **Personal drive** → mapped using `%username%` variable pointing to `\\VM-DEV-WINSERV-01\Personal\%username%` — Paula's machine shows her own `paula` subfolder automatically
+- **HR drive** → mapped as `Z:` pointing to `\\VM-WINSERV-01\HR` — visible to HR group members
+- **Personal drive** → mapped using `%username%` variable pointing to `\\VM-WINSERV-01\Personal\%username%` — Paula's machine shows her own `paula` subfolder automatically
 - Both drives visible under **Network Locations** in *This PC* on the Windows 11 client
  
 </td>
@@ -815,8 +815,8 @@ Open **Server Manager → File and Storage Services → Shares** → Click **Tas
  
 | Share Name | Local Path | Remote Path |
 |------------|------------|-------------|
-| `HR` | `C:\Shares\HR` | `\\VM-DEV-WINSERV-01\HR` |
-| `Personal` | `C:\Shares\Personal` | `\\VM-DEV-WINSERV-01\Personal` |
+| `HR` | `C:\Shares\HR` | `\\VM-WINSERV-01\HR` |
+| `Personal` | `C:\Shares\Personal` | `\\VM-WINSERV-01\Personal` |
  
 Complete the wizard for both shares.
  
@@ -834,7 +834,7 @@ Open **Group Policy Management** → Create or edit a GPO linked to the appropri
 User Configuration → Preferences → Windows Settings → Drive Maps
 ```
 Right-click → **New → Mapped Drive** → Set:
-- **Location:** `\\VM-DEV-WINSERV-01\HR`
+- **Location:** `\\VM-WINSERV-01\HR`
 - **Drive Letter:** `Z:`
 - **Item-level targeting:** limit to members of the `HR` Security Group
  
@@ -847,8 +847,8 @@ This variable resolves automatically at login — Paula gets `\Personal\paula`, 
  
 **Step 7 — Verify on the Client Machine**
 Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm under *Network Locations*:
-- `hr (\\Vm-dev-winserv-) (Z:)` — HR shared drive is mapped ✅
-- `paula (\\VM-DEV-WINSERV-\Personal)` — Paula's personal drive is mapped with her username ✅
+- `hr (\\VM-WINSERV-01) (Z:)` — HR shared drive is mapped ✅
+- `paula (\\VM-WINSERV-01\Personal)` — Paula's personal drive is mapped with her username ✅
  
 ---
  
@@ -923,17 +923,17 @@ Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm und
 <tr>
 <td width="50%" valign="top">
  
-**🖥️ Deployed Second Server — `VM-DEV-WINSERV-02`**
+**🖥️ Deployed Second Server — `VM-WINSERV-02`**
 - Created a new VM in **VMware Workstation Pro** and installed **Windows Server 2025**
-- Named the server `VM-DEV-WINSERV-02` to distinguish it from the original DC (`VM-DEV-WINSERV-01`)
+- Named the server `VM-DEV-WINSERV-02` to distinguish it from the original DC (`VM-WINSERV-01`)
 - Installed the **Active Directory Domain Services (AD DS)** role on the new server
  
 </td>
 <td width="50%" valign="top">
  
 **🌐 Configured Static IPs & DNS on Both Servers**
-- **Server 2 (`VM-DEV-WINSERV-02`):** Static IP `192.168.1.12`, preferred DNS `192.168.1.12` *(itself)*, alternate DNS `192.168.1.10` *(Server 1)*
-- **Server 1 (`VM-DEV-WINSERV-01`):** Updated preferred DNS to `192.168.1.10` *(itself)*, alternate DNS to `192.168.1.12` *(Server 2)*
+- **Server 2 (`VM-WINSERV-02`):** Static IP `192.168.1.12`, preferred DNS `192.168.1.12` *(itself)*, alternate DNS `192.168.1.10` *(Server 1)*
+- **Server 1 (`VM-WINSERV-01`):** Updated preferred DNS to `192.168.1.10` *(itself)*, alternate DNS to `192.168.1.12` *(Server 2)*
 - Each server points to itself first, then the other — ensuring DNS redundancy in both directions
  
 </td>
@@ -942,7 +942,7 @@ Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm und
 <td width="50%" valign="top">
  
 **🏛️ Promoted to Domain Controller & Joined Existing Domain**
-- On `VM-DEV-WINSERV-02`, ran the **AD DS Configuration Wizard** after installing the role
+- On `VM-WINSERV-02`, ran the **AD DS Configuration Wizard** after installing the role
 - Selected **"Add a domain controller to an existing domain"** — joined the same domain as Server 1
 - Both DCs now visible in **Active Directory Sites and Services**
  
@@ -951,7 +951,7 @@ Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm und
  
 **🔄 Validated AD & GPO Replication**
 - Triggered replication via **Active Directory Sites and Services → Replicate Now**
-- Created a test GPO on `VM-DEV-WINSERV-01` — confirmed it appeared automatically on `VM-DEV-WINSERV-02`
+- Created a test GPO on `VM-WINSERV-01` — confirmed it appeared automatically on `VM-WINSERV-02`
 - Proved that the replication pipeline is healthy and changes propagate across both DCs in real time
  
 </td>
@@ -963,12 +963,12 @@ Log into the Windows 11 client as **Paula** → Open **This PC** → Confirm und
 ## 📋 Setup Steps
  
 **Step 1 — Create & Install the Second Server VM**
-In **VMware Workstation Pro**, create a new VM using the same specs as Server 1 → Install **Windows Server 2025** → Name the machine `VM-DEV-WINSERV-02`.
+In **VMware Workstation Pro**, create a new VM using the same specs as Server 1 → Install **Windows Server 2025** → Name the machine `VM-WINSERV-02`.
  
 **Step 2 — Assign a Static IP to Server 2**
-On `VM-DEV-WINSERV-02`, open **Network Connections → Ethernet Properties → IPv4** and set:
+On `VM-WINSERV-02`, open **Network Connections → Ethernet Properties → IPv4** and set:
  
-| Field | Server 1 (`VM-DEV-WINSERV-01`) | Server 2 (`VM-DEV-WINSERV-02`) |
+| Field | Server 1 (`VM-WINSERV-01`) | Server 2 (`VM-WINSERV-02`) |
 |-------|-------------------------------|-------------------------------|
 | IP Address | `192.168.1.10` | `192.168.1.12` |
 | Subnet Mask | `255.255.255.0` | `255.255.255.0` |
@@ -977,28 +977,28 @@ On `VM-DEV-WINSERV-02`, open **Network Connections → Ethernet Properties → I
 | Alternate DNS | `192.168.1.12` *(Server 2)* | `192.168.1.10` *(Server 1)* |
  
 **Step 3 — Install the AD DS Role on Server 2**
-On `VM-DEV-WINSERV-02`, open **Server Manager → Add Roles and Features** → Select **Active Directory Domain Services** → Complete the installation wizard.
+On `VM-WINSERV-02`, open **Server Manager → Add Roles and Features** → Select **Active Directory Domain Services** → Complete the installation wizard.
  
 **Step 4 — Promote Server 2 to a Domain Controller**
 After installation, click **Promote this server to a domain controller** → Select **"Add a domain controller to an existing domain"** → Enter the existing domain name (e.g., `InfoTech.com`) → Provide **Domain Admin credentials** → Set a DSRM password → Complete the wizard → Server restarts automatically.
  
 **Step 5 — Verify Both DCs in AD Sites and Services**
-On either server, open **Active Directory Sites and Services** (`dssite.msc`) → Expand **Sites → Default-First-Site-Name → Servers** → Confirm both `VM-DEV-WINSERV-01` and `VM-DEV-WINSERV-02` are listed.
+On either server, open **Active Directory Sites and Services** (`dssite.msc`) → Expand **Sites → Default-First-Site-Name → Servers** → Confirm both `VM-WINSERV-01` and `VM-WINSERV-02` are listed.
  
 **Step 6 — Force AD Replication**
-Right-click `VM-DEV-WINSERV-02` under Sites and Services → **Replicate Now** → Confirm the replication completes without errors. Alternatively, run on either server:
+Right-click `VM-WINSERV-02` under Sites and Services → **Replicate Now** → Confirm the replication completes without errors. Alternatively, run on either server:
 ```
 repadmin /syncall /AdeP
 ```
  
 **Step 7 — Test GPO Replication**
-On `VM-DEV-WINSERV-01`, open **Group Policy Management** and create a new test GPO → Switch to `VM-DEV-WINSERV-02` and open Group Policy Management → Confirm the new GPO is visible, proving replication is working end-to-end. ✅
+On `VM-WINSERV-01`, open **Group Policy Management** and create a new test GPO → Switch to `VM-WINSERV-02` and open Group Policy Management → Confirm the new GPO is visible, proving replication is working end-to-end. ✅
  
 ---
  
 ## ✅ Outcome
  
-- Second Windows Server 2025 VM (`VM-DEV-WINSERV-02`) deployed and domain-joined successfully
+- Second Windows Server 2025 VM (`VM-WINSERV-02`) deployed and domain-joined successfully
 - **AD DS role** installed and server promoted as an **additional Domain Controller** to the existing domain
 - Static IPs and cross-referenced DNS configured on both servers for full redundancy
 - Both DCs visible in **Active Directory Sites and Services**
